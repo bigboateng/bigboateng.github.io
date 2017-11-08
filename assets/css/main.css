@@ -1,6 +1,6 @@
 
 body {
-  background: #30353a;
+  /*background: #30353a;*/
   font-family: "Lato", Georgia, Serif, serif;;
 }
 
@@ -29,7 +29,7 @@ body {
 
 
 .tick {
-  color: green;
+  color: #EC4891;
 }
 
 .root {
