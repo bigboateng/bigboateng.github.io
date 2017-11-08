@@ -21,11 +21,10 @@ body {
 }
 
 
-#terminal > .input {
+#terminal > #input {
   outline-color:  #30353a;
   border:         none;
   display:        inline-block;
-  border:hidden;
 }
 
 
