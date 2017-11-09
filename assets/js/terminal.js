@@ -4,16 +4,14 @@ class Terminal {
         let input = document.getElementById("input");
         input.focus();
         Terminal.init();
+        this.cli = new Cli();
         this.terminal = terminal;
         this.commandKeys = {
             enter: 13,
         };
-        this.commands = [
-            "pwd", "clear"
-        ];
         this.setListeners(terminal);
         this.newTerminal =
-            "<p>Last login: Tue Nov 7 03:27:48 on ttys000 |           |Theme: <select id=\"themeSelector\">\n" +
+            " <p>Last login: <span id=\"datetime\">Tue Nov 7 03:27:48</span> on ttys000 |           |Theme: <select id=\"themeSelector\">\n" +
             "        <option value=0>Black</option>\n" +
             "        <option value=1>White</option>\n" +
             "    </select></p>\n" +
@@ -25,7 +23,15 @@ class Terminal {
             "        </span>\n" +
             "        <span contenteditable=\"true\" id=\"input\"></span>\n" +
             "    </p>";
+        Terminal.updateDateTime();
 
+    }
+
+
+    static updateDateTime() {
+        let date = new Date();
+        let d = document.getElementById("datetime");
+        d.innerHTML = date;
     }
 
     static init() {
@@ -45,8 +51,18 @@ class Terminal {
                 let args = input[1];
                 if (command === "clear") {
                     this.clearTerminal();
-                } else if (command && command in this.commands) {
-                    // handle the command
+                } else if (command && ["pwd", "help"].includes(command)) {
+                    this.terminal.innerHTML += this.cli.handleCommand(command);
+                    this.terminal.innerHTML += "<p class=\"hidden\">\n" +
+                        "         <span class=\"prompt\">\n" +
+                        "         <span class=\"root\">root</span>\n" +
+                        "         <span class=\"tick\">❯</span>\n" +
+                        "         </span>\n" +
+                        "         <span contenteditable=\"true\" id=\"input\"></span>\n" +
+                        "         </p>";
+                    let input = document.getElementById("input");
+                    input.focus();
+
                 } else {
                     this.terminal.innerHTML += 'Error: command not recognized';
                     this.resetPrompt(prompt);
@@ -61,11 +77,13 @@ class Terminal {
         this.terminal.innerHTML = this.newTerminal;
         let input = document.getElementById("input");
         input.focus();
+        Terminal.updateDateTime();
     }
 
 
     resetPrompt(oldPrompt) {
         /**
+
          <p class="hidden">
          <span class="prompt">
          <span class="root">root</span>
@@ -79,6 +97,7 @@ class Terminal {
         this.terminal.append(copy);
         copy.querySelector('#input').innerHTML = '';
         copy.querySelector('#input').focus();
+        Terminal.updateDateTime();
     }
 
 }
@@ -86,5 +105,30 @@ class Terminal {
 
 // Deals with the command line interface
 class Cli {
+
+    constructor() {
+        this.command = {};
+        this.currDir = "/home";
+        this.init();
+    }
+
+    init() {
+        this.command.pwd = () => {
+            return this.currDir;
+        };
+
+        this.command.help = () => {
+            return "<p>1. help</p> <p>2. pwd</p>"
+        }
+    }
+
+    cliResult() {
+        return 2;
+    }
+
+    handleCommand(cmd) {
+        return this.command[cmd]();
+    }
+
 
 }
