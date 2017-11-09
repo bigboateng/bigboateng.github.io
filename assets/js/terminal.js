@@ -51,17 +51,10 @@ class Terminal {
                 let args = input[1];
                 if (command === "clear") {
                     this.clearTerminal();
-                } else if (command && ["pwd", "help"].includes(command)) {
-                    this.terminal.innerHTML += this.cli.handleCommand(command);
-                    this.terminal.innerHTML += "<p class=\"hidden\">\n" +
-                        "         <span class=\"prompt\">\n" +
-                        "         <span class=\"root\">root</span>\n" +
-                        "         <span class=\"tick\">❯</span>\n" +
-                        "         </span>\n" +
-                        "         <span contenteditable=\"true\" id=\"input\"></span>\n" +
-                        "         </p>";
-                    let input = document.getElementById("input");
-                    input.focus();
+                } else if (command && ["pwd", "help", "ls",  "view"].includes(command)) {
+
+                    this.terminal.innerHTML += this.cli.handleCommand(command, args);
+                    this.resetPrompt(event.target);
 
                 } else {
                     this.terminal.innerHTML += 'Error: command not recognized';
@@ -109,6 +102,10 @@ class Cli {
     constructor() {
         this.command = {};
         this.currDir = "/home";
+        this.commands = ["cd", "ls", "open"];
+        this.home = ["projects", "contact"];
+        this.projects = ["bigboateng.github.io", "ChromeExtensionSample", "algorithms", "robosoc_eurobot_2017", "JARVIS"];
+        this.currentDir = 0;
         this.init();
     }
 
@@ -117,17 +114,35 @@ class Cli {
             return this.currDir;
         };
 
+        this.command.ls = () => {
+            if (this.currentDir === 0) {
+                return this.listToParagraph(this.projects);
+            }
+        };
         this.command.help = () => {
-            return "<p>1. help</p> <p>2. pwd</p>"
+           return this.listToParagraph(this.commands);
+        };
+        this.command.view = (repo) => {
+            if (this.projects.indexOf(repo) !== -1) {
+                let url = "https://github.com/bigboateng/" +repo;
+                window.open(url, '_blank');
+                return `Git repo for ${repo} is opened in new tab.`
+            } else {
+                return "Invalid project";
+            }
         }
     }
 
-    cliResult() {
-        return 2;
+    listToParagraph(list) {
+        let output = "";
+        list.forEach((item)=>{
+            output += `<p>${item}</p>`
+        });
+        return output;
     }
 
-    handleCommand(cmd) {
-        return this.command[cmd]();
+    handleCommand(cmd, args) {
+        return this.command[cmd](args);
     }
 
 
